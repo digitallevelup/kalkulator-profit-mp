@@ -1343,10 +1343,21 @@ function CalculatorApp() {
             'Profit Bersih', 'Margin (%)'
         ];
 
-        const csvCell = value => {
+        const xmlEscape = value => {
             const text = value == null ? '' : String(value);
-            return '"' + text.replace(/"/g, '""') + '"';
+            return text.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
         };
+
+        const cell = value =>
+            '<Cell><Data ss:Type="String">' +
+            xmlEscape(value) +
+            '</Data></Cell>';
+
+        const headerRow = '<Row>' + headers.map(cell).join('') + '</Row>';
 
         const rows = history.map(item => [
             item.name,
@@ -1362,22 +1373,39 @@ function CalculatorApp() {
             Number(item.margin || 0).toFixed(2)
         ]);
 
-        const csv = [headers].concat(rows)
-            .map(row => row.map(csvCell).join(','))
-            .join('\r\n');
+        const bodyRows = rows.map(row =>
+            '<Row>' + row.map(cell).join('') + '</Row>'
+        ).join('');
 
-        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+        // Excel 97-2003 compatible SpreadsheetML workbook (.xls)
+        const excelXml = '<?xml version="1.0"?>' +
+            '<?mso-application progid="Excel.Sheet"?>' +
+            '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ' +
+            'xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+            'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
+            'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" ' +
+            'xmlns:html="http://www.w3.org/TR/REC-html40">' +
+            '<Worksheet ss:Name="Riwayat Kalkulasi"><Table>' +
+            headerRow + bodyRows +
+            '</Table></Worksheet></Workbook>';
+
+        const blob = new Blob(['\uFEFF' + excelXml], {
+            type: 'application/vnd.ms-excel'
+        });
+
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = 'riwayat-kalkulasi-profit-mp-' +
-            new Date().toISOString().slice(0, 10) + '.csv';
+            new Date().toISOString().slice(0, 10) + '.xls';
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
         setTimeout(() => URL.revokeObjectURL(url), 100);
 
-        showToast('Riwayat berhasil diunduh.', 'success');
+        showToast('Riwayat berhasil diunduh dalam format Excel (.xls).', 'success');
     };
 
 
@@ -2322,14 +2350,15 @@ function CalculatorApp() {
                             type="button"
                             onClick={handleDownloadHistory}
                             className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
-                            title="Download riwayat sebagai CSV"
+                            title="Download riwayat sebagai Excel (.xls)"
                         >
                             <i className="fas fa-download"></i>
-                            <span>Download</span>
+                            <span>Excel</span>
                         </button>
 
-                        <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">
-                            {history.length} Produk
+                        <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full inline-flex flex-col sm:flex-row items-center justify-center leading-tight gap-0 sm:gap-1 min-w-[48px]">
+                            <span className="text-sm sm:text-xs">{history.length}</span>
+                            <span>Produk</span>
                         </span>
 
                     </div>
