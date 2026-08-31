@@ -2334,30 +2334,31 @@ function CalculatorApp() {
 
             <div className="mt-7 sm:mt-10 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div className="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/50">
 
-                    <h3 className="font-bold text-slate-800 text-base sm:text-lg">
+                    <h3 className="font-bold text-slate-800 text-sm sm:text-lg shrink-0 whitespace-nowrap">
 
-                        <i className="fas fa-history mr-2 text-indigo-500"></i>
+                        <i className="fas fa-history mr-1.5 sm:mr-2 text-indigo-500"></i>
 
-                        Riwayat Kalkulasi
+                        <span className="sm:hidden">Riwayat</span>
+                        <span className="hidden sm:inline">Riwayat Kalkulasi</span>
 
                     </h3>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0">
 
                         <button
                             type="button"
                             onClick={handleDownloadHistory}
-                            className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+                            className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-lg transition-colors flex items-center justify-center sm:gap-1.5"
                             title="Download riwayat sebagai Excel (.xls)"
                         >
-                            <i className="fas fa-download"></i>                            
+                            <i className="fas fa-download"></i>
+                            <span className="hidden sm:inline">Excel</span>
                         </button>
 
-                        <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full inline-flex flex-col sm:flex-row items-center justify-center leading-tight gap-0 sm:gap-1 min-w-[48px]">
-                            <span className="text-sm sm:text-xs">{history.length}</span>
-                            <span>Produk</span>
+                        <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-2 rounded-full inline-flex items-center justify-center whitespace-nowrap shrink-0 w-auto min-w-max leading-none">
+                            {history.length} Produk
                         </span>
 
                     </div>
