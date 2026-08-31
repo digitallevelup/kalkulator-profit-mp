@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Kalkulator Profit Seller E-Commerce</title>
+    <title>Kalkulator Profit MP</title>
 
 ```
 <!-- Tailwind CSS -->
@@ -43,7 +43,7 @@
     input,
     select,
     textarea {
-        font-size: 16px !important;
+        font-size: 16px;
     }
 
     input,
@@ -71,20 +71,19 @@
         background: #94a3b8;
     }
 
-    @keyframes slideIn {
+    @keyframes slideDown {
         from {
             opacity: 0;
-            transform: translateY(-12px);
+            transform: translateY(-8px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    .toast-animation {
-        animation: slideIn 0.25s ease-out;
+    .animate-slide-down {
+        animation: slideDown .2s ease-out;
     }
 </style>
 ```
@@ -115,7 +114,7 @@ const { useState, useEffect, useMemo } = React;
 ========================================================= */
 
 const AUTH_API_URL =
-    'https://script.google.com/macros/s/AKfycbyf13KhqDd_iSiEDy1m011_KhNnANG8HssqZJB3onQYFXb81qF7QfkTVx-2hK-7KOBuIA/exec';
+'https://script.google.com/macros/s/AKfycbyf13KhqDd_iSiEDy1m011_KhNnANG8HssqZJB3onQYFXb81qF7QfkTVx-2hK-7KOBuIA/exec';
 
 
 const AuthGate = ({ children }) => {
@@ -213,7 +212,9 @@ const AuthGate = ({ children }) => {
                     <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-7 sm:p-9 text-center">
 
                         <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+
                             <i className="fas fa-calculator text-3xl"></i>
+
                         </div>
 
                         <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
@@ -255,7 +256,9 @@ const AuthGate = ({ children }) => {
                         <div className="text-center">
 
                             <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+
                                 <i className="fas fa-lock text-2xl"></i>
+
                             </div>
 
                             <h2 className="text-2xl font-black text-slate-900">
@@ -286,7 +289,10 @@ const AuthGate = ({ children }) => {
                                         setError('');
                                     }}
                                     onKeyDown={e => {
-                                        if (e.key === 'Enter' && !loading) {
+                                        if (
+                                            e.key === 'Enter' &&
+                                            !loading
+                                        ) {
                                             verifyPassword();
                                         }
                                     }}
@@ -302,7 +308,6 @@ const AuthGate = ({ children }) => {
                                 <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
 
                                     <i className="fas fa-exclamation-circle mr-2"></i>
-
                                     {error}
 
                                 </div>
@@ -348,7 +353,7 @@ const AuthGate = ({ children }) => {
 
 
 /* =========================================================
-   FORMAT RUPIAH
+   FORMAT CURRENCY
 ========================================================= */
 
 const formatRp = (value) => {
@@ -467,49 +472,7 @@ const CurrencyInput = ({
 
 
 /* =========================================================
-   PERCENT INPUT
-========================================================= */
-
-const PercentInput = ({
-    label,
-    value,
-    onChange
-}) => (
-
-    <div>
-
-        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-            {label}
-        </label>
-
-        <div className="relative">
-
-            <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
-                value={value}
-                onChange={e =>
-                    onChange(e.target.value)
-                }
-                placeholder="0"
-                className="w-full p-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-lg text-base font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-right"
-            />
-
-            <span className="absolute right-3 top-2.5 text-slate-500 text-sm font-bold">
-                %
-            </span>
-
-        </div>
-
-    </div>
-
-);
-
-
-/* =========================================================
-   CALCULATOR APP
+   MAIN APP
 ========================================================= */
 
 function CalculatorApp() {
@@ -518,33 +481,22 @@ function CalculatorApp() {
         useState('ideal');
 
 
-    /* PRODUCT */
+    /* BASIC */
 
     const [productName, setProductName] =
         useState('');
 
-
-    /* HPP */
-
     const [hpp, setHpp] =
         useState('');
 
-
-    /* TARGET PROFIT */
-
     const [targetProfit, setTargetProfit] =
         useState('');
-
-
-    /* REAL MODE PRICE */
 
     const [sellingPrice, setSellingPrice] =
         useState('');
 
 
-    /* =====================================================
-       DISCOUNT
-    ===================================================== */
+    /* DISCOUNT */
 
     const [discountEnabled, setDiscountEnabled] =
         useState(false);
@@ -552,22 +504,11 @@ function CalculatorApp() {
     const [discountPercent, setDiscountPercent] =
         useState('');
 
-
-    /*
-        BEFORE
-        Fee dihitung dari harga sebelum diskon / harga coret
-
-        AFTER
-        Fee dihitung dari harga setelah diskon
-    */
-
-    const [marketplaceFeeBase, setMarketplaceFeeBase] =
-        useState('after');
+    const [discountOpen, setDiscountOpen] =
+        useState(false);
 
 
-    /* =====================================================
-       PERCENTAGE FEES
-    ===================================================== */
+    /* PERCENTAGE FEES */
 
     const [percentageFees, setPercentageFees] =
         useState([
@@ -575,27 +516,28 @@ function CalculatorApp() {
             {
                 id: 1,
                 name: 'Biaya Admin',
-                value: '10'
+                value: '10',
+                basis: 'after'
             },
 
             {
                 id: 2,
                 name: 'Gratis Ongkir Xtra',
-                value: '4'
+                value: '4',
+                basis: 'after'
             },
 
             {
                 id: 3,
                 name: 'Promo Xtra+',
-                value: '4'
+                value: '4',
+                basis: 'after'
             }
 
         ]);
 
 
-    /* =====================================================
-       NOMINAL FEES
-    ===================================================== */
+    /* NOMINAL FEES */
 
     const [nominalFees, setNominalFees] =
         useState([
@@ -615,29 +557,19 @@ function CalculatorApp() {
         ]);
 
 
-    /* =====================================================
-       HISTORY
-    ===================================================== */
+    /* HISTORY */
 
     const [history, setHistory] =
         useState(() => {
 
-            try {
+            const savedHistory =
+                localStorage.getItem(
+                    'profitCalcHistory'
+                );
 
-                const savedHistory =
-                    localStorage.getItem(
-                        'profitCalcHistory'
-                    );
-
-                return savedHistory
-                    ? JSON.parse(savedHistory)
-                    : [];
-
-            } catch (e) {
-
-                return [];
-
-            }
+            return savedHistory
+                ? JSON.parse(savedHistory)
+                : [];
 
         });
 
@@ -656,22 +588,74 @@ function CalculatorApp() {
     }, [history]);
 
 
-    /* =====================================================
-       CALCULATION
-    ===================================================== */
+    /*
+     =========================================================
+     CALCULATION ENGINE
+
+     Konsep:
+
+     IDEAL:
+     target profit = uang bersih setelah seluruh potongan.
+
+     Jika diskon aktif:
+     - harga coret = harga sebelum diskon
+     - harga jual = harga setelah diskon
+
+     Potongan %:
+     - BEFORE = dihitung dari harga coret
+     - AFTER  = dihitung dari harga setelah diskon
+
+     REAL:
+     - input harga jual aktual
+     - jika diskon aktif, harga jual adalah harga setelah diskon
+     - tidak menampilkan harga coret di mode real
+     =========================================================
+    */
 
     const calcResult = useMemo(() => {
 
         const numHpp =
             unformatRp(hpp) || 0;
 
+        const discount =
+            discountEnabled
+                ? Math.min(
+                    Math.max(
+                        parseFloat(discountPercent) || 0,
+                        0
+                    ),
+                    99.99
+                )
+                : 0;
 
-        let totalPct = 0;
+
+        /*
+         * Total persentase biaya.
+         *
+         * Biaya BEFORE diskon tidak menjadi
+         * koefisien terhadap harga final.
+         *
+         * Biaya AFTER diskon menjadi koefisien
+         * terhadap harga jual setelah diskon.
+         */
+
+        let pctBefore = 0;
+        let pctAfter = 0;
 
         percentageFees.forEach(fee => {
 
-            totalPct +=
-                (parseFloat(fee.value) || 0) / 100;
+            const value =
+                parseFloat(fee.value) || 0;
+
+            if (fee.basis === 'before') {
+
+                pctBefore += value / 100;
+
+            } else {
+
+                pctAfter += value / 100;
+
+            }
 
         });
 
@@ -685,365 +669,213 @@ function CalculatorApp() {
             );
 
 
-        const discountRate =
-            discountEnabled
-                ? Math.min(
-                    Math.max(
-                        parseFloat(discountPercent) || 0,
-                        0
-                    ),
-                    100
-                ) / 100
-                : 0;
+        /*
+         * Validasi biaya AFTER.
+         */
+
+        const isError =
+            pctAfter >= 1 ||
+            pctBefore >= 1 ||
+            discount >= 100;
 
 
-        let corePrice = 0;
-        let customerPrice = 0;
-        let discountAmount = 0;
-        let totalPotongan = 0;
+        let finalSellingPrice = 0;
+        let coretPrice = 0;
         let finalProfit = 0;
+        let totalPotongan = 0;
 
-        let isError = false;
-        let errorMessage = '';
-
-
-        /* =================================================
-           VALIDATION
-        ================================================= */
-
-        if (totalPct >= 1) {
-
-            isError = true;
-
-            errorMessage =
-                'Total persentase potongan marketplace harus kurang dari 100%.';
-
-        }
-
-
-        if (
-            !isError &&
-            discountEnabled &&
-            discountRate >= 1
-        ) {
-
-            isError = true;
-
-            errorMessage =
-                'Diskon 100% tidak dapat digunakan.';
-
-        }
-
-
-        /* =================================================
-           MODE IDEAL
-        ================================================= */
-
-        if (
-            !isError &&
-            activeTab === 'ideal'
-        ) {
-
-            const numTarget =
-                unformatRp(targetProfit) || 0;
-
-
-            /*
-               TANPA DISKON
-
-               Harga Jual =
-               (HPP + Target + Biaya Tetap)
-               /
-               (1 - Fee%)
-            */
-
-            if (!discountEnabled) {
-
-                const denominator =
-                    1 - totalPct;
-
-
-                if (denominator <= 0) {
-
-                    isError = true;
-
-                    errorMessage =
-                        'Total potongan tidak memungkinkan untuk menghitung harga jual.';
-
-                } else {
-
-                    corePrice =
-                        (
-                            numHpp +
-                            numTarget +
-                            totalNom
-                        ) /
-                        denominator;
-
-                    customerPrice =
-                        corePrice;
-
-                    discountAmount = 0;
-
-                }
-
-            }
-
-
-            /*
-               DENGAN DISKON
-            */
-
-            else {
-
-                /*
-                   Fee sebelum diskon:
-                   Profit =
-                   Core - Discount - HPP - Fee(Core) - Nominal
-
-                   Core =
-                   (HPP + Target + Nominal)
-                   /
-                   (1 - Discount - Fee)
-                */
-
-                if (
-                    marketplaceFeeBase === 'before'
-                ) {
-
-                    const denominator =
-                        1 -
-                        discountRate -
-                        totalPct;
-
-
-                    if (denominator <= 0) {
-
-                        isError = true;
-
-                        errorMessage =
-                            'Diskon dan potongan marketplace terlalu besar untuk menghasilkan harga jual ideal.';
-
-                    } else {
-
-                        corePrice =
-                            (
-                                numHpp +
-                                numTarget +
-                                totalNom
-                            ) /
-                            denominator;
-
-                    }
-
-                }
-
-
-                /*
-                   Fee setelah diskon:
-                   Customer =
-                   Core × (1 - Discount)
-
-                   Profit =
-                   Customer - HPP - Fee(Customer) - Nominal
-
-                   Core =
-                   (HPP + Target + Nominal)
-                   /
-                   ((1-Discount) × (1-Fee))
-                */
-
-                else {
-
-                    const denominator =
-                        (1 - discountRate) *
-                        (1 - totalPct);
-
-
-                    if (denominator <= 0) {
-
-                        isError = true;
-
-                        errorMessage =
-                            'Diskon dan potongan marketplace terlalu besar untuk menghasilkan harga jual ideal.';
-
-                    } else {
-
-                        corePrice =
-                            (
-                                numHpp +
-                                numTarget +
-                                totalNom
-                            ) /
-                            denominator;
-
-                    }
-
-                }
-
-
-                if (!isError) {
-
-                    discountAmount =
-                        corePrice *
-                        discountRate;
-
-                    customerPrice =
-                        corePrice -
-                        discountAmount;
-
-                }
-
-            }
-
-
-            if (!isError) {
-
-                const feeBase =
-                    marketplaceFeeBase === 'before'
-                        ? corePrice
-                        : customerPrice;
-
-
-                const percentageAmount =
-                    feeBase *
-                    totalPct;
-
-
-                totalPotongan =
-                    percentageAmount +
-                    totalNom;
-
-
-                finalProfit =
-                    customerPrice -
-                    numHpp -
-                    totalPotongan;
-
-            }
-
-        }
-
-
-        /* =================================================
-           MODE REAL
-        ================================================= */
-
-        if (
-            !isError &&
-            activeTab === 'real'
-        ) {
-
-            /*
-               REAL MODE TANPA DISKON
-               sellingPrice = Harga Jual Saat Ini
-            */
-
-            corePrice =
-                unformatRp(sellingPrice) || 0;
-
-
-            if (!discountEnabled) {
-
-                customerPrice =
-                    corePrice;
-
-                discountAmount = 0;
-
-            }
-
-
-            /*
-               REAL MODE DENGAN DISKON
-               sellingPrice = Harga Coret
-            */
-
-            else {
-
-                discountAmount =
-                    corePrice *
-                    discountRate;
-
-                customerPrice =
-                    corePrice -
-                    discountAmount;
-
-            }
-
-
-            const feeBase =
-                marketplaceFeeBase === 'before'
-                    ? corePrice
-                    : customerPrice;
-
-
-            const percentageAmount =
-                feeBase *
-                totalPct;
-
-
-            totalPotongan =
-                percentageAmount +
-                totalNom;
-
-
-            finalProfit =
-                customerPrice -
-                numHpp -
-                totalPotongan;
-
-        }
-
-
-        /* =================================================
-           BREAKDOWN
-        ================================================= */
-
-        const breakdownPct = [];
-        const breakdownNom = [];
+        let breakdownPct = [];
+        let breakdownNom = [];
 
 
         if (!isError) {
 
-            const feeBase =
-                marketplaceFeeBase === 'before'
-                    ? corePrice
-                    : customerPrice;
+            if (activeTab === 'ideal') {
 
+                const numTarget =
+                    unformatRp(targetProfit) || 0;
+
+
+                /*
+                 * Kita mencari:
+                 *
+                 * P = harga setelah diskon
+                 *
+                 * Jika diskon:
+                 *
+                 * harga coret = P / (1-d)
+                 *
+                 * biaya BEFORE = coret * pctBefore
+                 * biaya AFTER  = P * pctAfter
+                 *
+                 * profit:
+                 *
+                 * P - HPP
+                 * - biaya before
+                 * - biaya after
+                 * - biaya nominal
+                 *
+                 * = target
+                 *
+                 * Jadi:
+                 *
+                 * P(1 - pctAfter - pctBefore/(1-d))
+                 * =
+                 * HPP + target + nominal
+                 */
+
+                const discountFactor =
+                    1 - (discount / 100);
+
+
+                const beforeCoefficient =
+                    pctBefore / discountFactor;
+
+
+                const denominator =
+                    1 -
+                    pctAfter -
+                    beforeCoefficient;
+
+
+                if (
+                    denominator <= 0
+                ) {
+
+                    return {
+                        sp: 0,
+                        coret: 0,
+                        profit: 0,
+                        potongan: 0,
+                        margin: 0,
+                        isError: true,
+                        breakdownPct: [],
+                        breakdownNom: [],
+                        errorMessage:
+                            'Kombinasi diskon dan potongan terlalu besar sehingga harga jual ideal tidak dapat dihitung.'
+                    };
+
+                }
+
+
+                finalSellingPrice =
+                    (
+                        numHpp +
+                        numTarget +
+                        totalNom
+                    ) / denominator;
+
+
+                if (discount > 0) {
+
+                    coretPrice =
+                        finalSellingPrice /
+                        discountFactor;
+
+                } else {
+
+                    coretPrice =
+                        finalSellingPrice;
+
+                }
+
+
+            } else {
+
+                /*
+                 * REAL PROFIT
+                 *
+                 * Harga yang dimasukkan adalah
+                 * harga jual aktual / harga setelah
+                 * diskon.
+                 */
+
+                finalSellingPrice =
+                    unformatRp(
+                        sellingPrice
+                    ) || 0;
+
+
+                /*
+                 * Mode real tidak membutuhkan
+                 * harga coret untuk kalkulasi.
+                 */
+
+                coretPrice =
+                    finalSellingPrice;
+
+            }
+
+
+            /*
+             * Hitung biaya percentage.
+             */
 
             percentageFees.forEach(fee => {
 
                 const val =
                     parseFloat(fee.value) || 0;
 
+                if (val <= 0) return;
 
-                if (val > 0) {
 
-                    breakdownPct.push({
+                let amount = 0;
 
-                        name:
-                            fee.name ||
-                            'Biaya %',
 
-                        pct:
-                            val,
+                if (fee.basis === 'before') {
 
-                        amount:
-                            feeBase *
-                            (val / 100)
+                    /*
+                     * Jika discount aktif,
+                     * basis BEFORE = harga coret.
+                     *
+                     * Jika discount tidak aktif,
+                     * harga coret = harga jual.
+                     */
 
-                    });
+                    amount =
+                        coretPrice *
+                        (val / 100);
+
+                } else {
+
+                    /*
+                     * AFTER = harga jual final.
+                     */
+
+                    amount =
+                        finalSellingPrice *
+                        (val / 100);
 
                 }
+
+
+                breakdownPct.push({
+
+                    name:
+                        fee.name ||
+                        'Biaya %',
+
+                    pct: val,
+
+                    amount,
+
+                    basis: fee.basis
+
+                });
 
             });
 
 
+            /*
+             * Biaya nominal.
+             */
+
             nominalFees.forEach(fee => {
 
                 const val =
-                    unformatRp(fee.value) || 0;
-
+                    unformatRp(
+                        fee.value
+                    ) || 0;
 
                 if (val > 0) {
 
@@ -1053,8 +885,7 @@ function CalculatorApp() {
                             fee.name ||
                             'Biaya Tetap',
 
-                        amount:
-                            val
+                        amount: val
 
                     });
 
@@ -1062,33 +893,48 @@ function CalculatorApp() {
 
             });
 
+
+            totalPotongan =
+                breakdownPct.reduce(
+                    (sum, item) =>
+                        sum + item.amount,
+                    0
+                ) +
+                breakdownNom.reduce(
+                    (sum, item) =>
+                        sum + item.amount,
+                    0
+                );
+
+
+            finalProfit =
+                finalSellingPrice -
+                numHpp -
+                totalPotongan;
+
         }
+
+
+        /*
+         * Margin berdasarkan harga jual final.
+         */
+
+        const margin =
+            finalSellingPrice > 0
+                ? (
+                    finalProfit /
+                    finalSellingPrice
+                ) * 100
+                : 0;
 
 
         return {
 
-            /*
-                corePrice:
-                Harga Jual jika tanpa diskon
-                Harga Coret jika dengan diskon
-            */
-
-            corePrice,
-
-            /*
-                customerPrice:
-                Harga yang benar-benar dibayar customer
-            */
-
-            customerPrice,
-
-            discountAmount,
-
-            discountPercent:
-                discountRate * 100,
-
             sp:
-                customerPrice,
+                finalSellingPrice,
+
+            coret:
+                coretPrice,
 
             profit:
                 finalProfit,
@@ -1096,48 +942,37 @@ function CalculatorApp() {
             potongan:
                 totalPotongan,
 
-            margin:
-                customerPrice > 0
-                    ? (
-                        finalProfit /
-                        customerPrice
-                    ) * 100
-                    : 0,
+            margin,
 
             isError,
-
-            errorMessage,
 
             breakdownPct,
 
             breakdownNom,
 
-            feeBase:
-                marketplaceFeeBase
+            errorMessage: ''
 
         };
 
     }, [
 
         activeTab,
-
         hpp,
         targetProfit,
         sellingPrice,
-
         percentageFees,
         nominalFees,
-
         discountEnabled,
-        discountPercent,
-        marketplaceFeeBase
+        discountPercent
 
     ]);
 
 
-    /* =====================================================
-       TOAST
-    ===================================================== */
+    /*
+     =========================================================
+     TOAST
+     =========================================================
+    */
 
     const showToast = (
         text,
@@ -1149,35 +984,35 @@ function CalculatorApp() {
             type
         });
 
-        setTimeout(() => {
-            setToast(null);
-        }, 3000);
-
-    };
-
-
-    /* =====================================================
-       FEE HANDLERS
-    ===================================================== */
-
-    const handleUpdatePctFee = (
-        id,
-        field,
-        val
-    ) => {
-
-        setPercentageFees(prev =>
-            prev.map(fee =>
-                fee.id === id
-                    ? {
-                        ...fee,
-                        [field]: val
-                    }
-                    : fee
-            )
+        setTimeout(
+            () => setToast(null),
+            3000
         );
 
     };
+
+
+    /*
+     =========================================================
+     PERCENTAGE FEE
+     =========================================================
+    */
+
+    const handleUpdatePctFee =
+        (id, field, val) => {
+
+            setPercentageFees(prev =>
+                prev.map(fee =>
+                    fee.id === id
+                        ? {
+                            ...fee,
+                            [field]: val
+                        }
+                        : fee
+                )
+            );
+
+        };
 
 
     const addPctFee = () => {
@@ -1189,7 +1024,8 @@ function CalculatorApp() {
             {
                 id: Date.now(),
                 name: '',
-                value: ''
+                value: '',
+                basis: 'after'
             }
 
         ]);
@@ -1208,24 +1044,27 @@ function CalculatorApp() {
     };
 
 
-    const handleUpdateNomFee = (
-        id,
-        field,
-        val
-    ) => {
+    /*
+     =========================================================
+     NOMINAL FEE
+     =========================================================
+    */
 
-        setNominalFees(prev =>
-            prev.map(fee =>
-                fee.id === id
-                    ? {
-                        ...fee,
-                        [field]: val
-                    }
-                    : fee
-            )
-        );
+    const handleUpdateNomFee =
+        (id, field, val) => {
 
-    };
+            setNominalFees(prev =>
+                prev.map(fee =>
+                    fee.id === id
+                        ? {
+                            ...fee,
+                            [field]: val
+                        }
+                        : fee
+                )
+            );
+
+        };
 
 
     const addNomFee = () => {
@@ -1256,19 +1095,51 @@ function CalculatorApp() {
     };
 
 
-    /* =====================================================
-       SAVE
-    ===================================================== */
+    /*
+     =========================================================
+     SAVE
+     =========================================================
+    */
 
     const handleSave = () => {
 
         if (
-            !productName.trim() ||
+            !productName ||
             unformatRp(hpp) === 0
         ) {
 
             showToast(
                 'Nama Produk dan Modal (HPP) wajib diisi!',
+                'error'
+            );
+
+            return;
+
+        }
+
+
+        if (
+            activeTab === 'ideal' &&
+            unformatRp(targetProfit) === 0
+        ) {
+
+            showToast(
+                'Target Keuntungan Bersih wajib diisi.',
+                'error'
+            );
+
+            return;
+
+        }
+
+
+        if (
+            activeTab === 'real' &&
+            unformatRp(sellingPrice) === 0
+        ) {
+
+            showToast(
+                'Harga Jual Saat Ini wajib diisi.',
                 'error'
             );
 
@@ -1290,24 +1161,9 @@ function CalculatorApp() {
         }
 
 
-        if (
-            calcResult.customerPrice <= 0
-        ) {
-
-            showToast(
-                'Harga jual belum menghasilkan nilai yang valid.',
-                'error'
-            );
-
-            return;
-
-        }
-
-
         const newItem = {
 
-            id:
-                Date.now(),
+            id: Date.now(),
 
             name:
                 productName,
@@ -1318,23 +1174,28 @@ function CalculatorApp() {
             hpp:
                 unformatRp(hpp),
 
-            corePrice:
-                calcResult.corePrice,
+            sp:
+                calcResult.sp,
+
+            coret:
+                discountEnabled &&
+                activeTab === 'ideal'
+                    ? calcResult.coret
+                    : 0,
 
             discountEnabled:
-                discountEnabled,
+                activeTab === 'ideal'
+                    ? discountEnabled
+                    : false,
 
             discountPercent:
-                calcResult.discountPercent,
-
-            discountAmount:
-                calcResult.discountAmount,
-
-            customerPrice:
-                calcResult.customerPrice,
-
-            feeBase:
-                marketplaceFeeBase,
+                activeTab === 'ideal'
+                    ? (
+                        parseFloat(
+                            discountPercent
+                        ) || 0
+                    )
+                    : 0,
 
             potongan:
                 calcResult.potongan,
@@ -1362,31 +1223,11 @@ function CalculatorApp() {
     };
 
 
-    /* =====================================================
-       STATUS
-    ===================================================== */
-
     const isProfit =
         calcResult.profit > 0;
 
     const isLoss =
         calcResult.profit < 0;
-
-
-    /* =====================================================
-       DYNAMIC INPUT LABEL
-    ===================================================== */
-
-    const realPriceLabel =
-        discountEnabled
-            ? 'Harga Coret'
-            : 'Harga Jual Saat Ini';
-
-
-    const idealResultLabel =
-        discountEnabled
-            ? 'Harga Coret Ideal'
-            : 'Harga Jual Ideal';
 
 
     return (
@@ -1395,26 +1236,22 @@ function CalculatorApp() {
 
 
             {/* =================================================
-               TOAST
+                TOAST
             ================================================= */}
 
             {toast && (
 
-                <div
-                    className={`fixed top-6 right-4 left-4 sm:left-auto sm:right-6 z-50 px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-animation ${
-                        toast.type === 'error'
-                            ? 'bg-red-600'
-                            : 'bg-emerald-600'
-                    } text-white`}
-                >
+                <div className={`fixed top-5 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto z-50 px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 ${
+                    toast.type === 'error'
+                        ? 'bg-red-600'
+                        : 'bg-emerald-600'
+                } text-white`}>
 
-                    <i
-                        className={`fas ${
-                            toast.type === 'error'
-                                ? 'fa-exclamation-circle'
-                                : 'fa-check-circle'
-                        } text-xl`}
-                    ></i>
+                    <i className={`fas ${
+                        toast.type === 'error'
+                            ? 'fa-exclamation-circle'
+                            : 'fa-check-circle'
+                    } text-xl`}></i>
 
                     <p className="font-medium">
                         {toast.text}
@@ -1426,7 +1263,7 @@ function CalculatorApp() {
 
 
             {/* =================================================
-               HEADER
+                HEADER
             ================================================= */}
 
             <header className="mb-8 text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -1450,58 +1287,76 @@ function CalculatorApp() {
             </header>
 
 
-            {/* =================================================
-               MAIN GRID
-            ================================================= */}
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
 
                 {/* =================================================
-                   LEFT COLUMN
+                    LEFT
                 ================================================= */}
 
                 <div className="lg:col-span-2 space-y-6">
 
 
                     {/* =================================================
-                       TAB
+                        MODE
                     ================================================= */}
 
                     <div className="flex p-1 bg-slate-200 rounded-xl shadow-inner">
 
                         <button
-                            className={`flex-1 py-3 px-4 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                            className={`flex-1 py-3 px-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
                                 activeTab === 'ideal'
                                     ? 'bg-white text-indigo-700 shadow-md ring-1 ring-slate-900/5'
                                     : 'text-slate-500 hover:text-slate-700'
                             }`}
-                            onClick={() =>
-                                setActiveTab('ideal')
-                            }
+                            onClick={() => {
+
+                                setActiveTab('ideal');
+
+                                /*
+                                 * Diskon hanya berlaku
+                                 * untuk mode ideal.
+                                 */
+
+                                setDiscountOpen(false);
+
+                            }}
                         >
 
                             <i className="fas fa-bullseye"></i>
 
-                            Cari Harga Jual Ideal
+                            <span>
+                                Cari Harga Jual Ideal
+                            </span>
 
                         </button>
 
 
                         <button
-                            className={`flex-1 py-3 px-4 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                            className={`flex-1 py-3 px-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
                                 activeTab === 'real'
                                     ? 'bg-white text-indigo-700 shadow-md ring-1 ring-slate-900/5'
                                     : 'text-slate-500 hover:text-slate-700'
                             }`}
-                            onClick={() =>
-                                setActiveTab('real')
-                            }
+                            onClick={() => {
+
+                                setActiveTab('real');
+
+                                /*
+                                 * Diskon tidak digunakan
+                                 * pada mode cek real profit.
+                                 */
+
+                                setDiscountOpen(false);
+
+                            }}
                         >
 
                             <i className="fas fa-search-dollar"></i>
 
-                            Cek Real Profit
+                            <span>
+                                Cek Real Profit
+                            </span>
 
                         </button>
 
@@ -1509,7 +1364,7 @@ function CalculatorApp() {
 
 
                     {/* =================================================
-                       BASIC INFO
+                        INFORMASI DASAR
                     ================================================= */}
 
                     <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -1537,7 +1392,9 @@ function CalculatorApp() {
                                 <div className="relative shadow-sm rounded-lg">
 
                                     <span className="absolute left-3 top-2.5 text-slate-400">
+
                                         <i className="fas fa-tag"></i>
+
                                     </span>
 
                                     <input
@@ -1567,7 +1424,7 @@ function CalculatorApp() {
                             />
 
 
-                            {/* DYNAMIC PRICE / TARGET */}
+                            {/* TARGET / SELLING */}
 
                             {activeTab === 'ideal' ? (
 
@@ -1581,7 +1438,7 @@ function CalculatorApp() {
                             ) : (
 
                                 <CurrencyInput
-                                    label={realPriceLabel}
+                                    label="Harga Jual Saat Ini"
                                     placeholder="0"
                                     value={sellingPrice}
                                     onChange={setSellingPrice}
@@ -1592,253 +1449,187 @@ function CalculatorApp() {
                         </div>
 
 
-                        {/* IDEAL MODE INFO */}
+                        {/* =================================================
+                            DISCOUNT SETTING
+                            HANYA MODE IDEAL
+                        ================================================= */}
 
-                        {activeTab === 'ideal' && discountEnabled && (
+                        {activeTab === 'ideal' && (
 
-                            <div className="mt-2 p-3 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs leading-relaxed">
-
-                                <i className="fas fa-lightbulb mr-1"></i>
-
-                                <b>Mode diskon aktif:</b> Kalkulator akan mencari
-                                <b>Harga Coret Ideal</b> yang setelah didiskon tetap menghasilkan
-                                target keuntungan bersih.
-
-                            </div>
-
-                        )}
-
-                    </div>
+                            <div className="mt-5 pt-5 border-t border-slate-100">
 
 
-                    {/* =================================================
-                       DISCOUNT
-                    ================================================= */}
+                                {/* MOBILE FRIENDLY BUTTON */}
 
-                    <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setDiscountOpen(
+                                            !discountOpen
+                                        )
+                                    }
+                                    className="w-full flex items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 transition-all text-left"
+                                >
 
-                        <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-3 min-w-0">
 
-                            <div>
+                                        <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center ${
+                                            discountEnabled
+                                                ? 'bg-indigo-100 text-indigo-600'
+                                                : 'bg-slate-200 text-slate-500'
+                                        }`}>
 
-                                <h2 className="text-lg font-bold text-slate-800">
+                                            <i className="fas fa-tags"></i>
 
-                                    <i className="fas fa-tags mr-2 text-orange-500"></i>
-
-                                    Pengaturan Diskon
-
-                                </h2>
-
-                                <p className="text-xs text-slate-400 mt-1">
-                                    Aktifkan jika produk menggunakan harga coret dan diskon.
-                                </p>
-
-                            </div>
-
-
-                            {/* SWITCH */}
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setDiscountEnabled(
-                                        !discountEnabled
-                                    )
-                                }
-                                className={`relative shrink-0 w-14 h-7 rounded-full transition-colors ${
-                                    discountEnabled
-                                        ? 'bg-indigo-600'
-                                        : 'bg-slate-300'
-                                }`}
-                                aria-label="Aktifkan diskon"
-                            >
-
-                                <span
-                                    className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                                        discountEnabled
-                                            ? 'translate-x-8'
-                                            : 'translate-x-1'
-                                    }`}
-                                ></span>
-
-                            </button>
-
-                        </div>
+                                        </div>
 
 
-                        {discountEnabled ? (
+                                        <div className="min-w-0">
 
-                            <div className="mt-5 pt-5 border-t border-slate-100 space-y-5">
+                                            <div className="font-bold text-slate-800 text-sm sm:text-base">
 
+                                                Pengaturan Diskon
 
-                                {/* DISCOUNT INPUT */}
+                                            </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="text-xs text-slate-500 mt-0.5 truncate">
 
-                                    <PercentInput
-                                        label="Diskon Produk"
-                                        value={discountPercent}
-                                        onChange={setDiscountPercent}
-                                    />
+                                                {discountEnabled
+                                                    ? `Diskon ${discountPercent || 0}% • Harga coret aktif`
+                                                    : 'Aktifkan diskon & atur harga coret'
+                                                }
 
-
-                                    <div>
-
-                                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                            Harga Setelah Diskon
-                                        </label>
-
-                                        <div className="w-full p-2.5 bg-orange-50 border border-orange-200 rounded-lg text-right font-bold text-orange-700">
-
-                                            {calcResult.customerPrice > 0
-                                                ? formatCurrency(
-                                                    calcResult.customerPrice
-                                                )
-                                                : 'Rp0'
-                                            }
+                                            </div>
 
                                         </div>
 
                                     </div>
 
-                                </div>
 
+                                    <div className="flex items-center gap-2 shrink-0">
 
-                                {/* FEE BASE */}
+                                        {discountEnabled && (
 
-                                <div>
+                                            <span className="hidden sm:inline-flex px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
+                                                AKTIF
+                                            </span>
 
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Potongan Marketplace Dihitung Dari
-                                    </label>
+                                        )}
 
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                setMarketplaceFeeBase(
-                                                    'before'
-                                                )
-                                            }
-                                            className={`text-left p-4 rounded-xl border-2 transition-all ${
-                                                marketplaceFeeBase === 'before'
-                                                    ? 'border-indigo-500 bg-indigo-50'
-                                                    : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-                                            }`}
-                                        >
-
-                                            <div className="flex items-center gap-3">
-
-                                                <div
-                                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                                        marketplaceFeeBase === 'before'
-                                                            ? 'border-indigo-600'
-                                                            : 'border-slate-300'
-                                                    }`}
-                                                >
-
-                                                    {marketplaceFeeBase === 'before' && (
-
-                                                        <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>
-
-                                                    )}
-
-                                                </div>
-
-                                                <div>
-
-                                                    <div className="font-bold text-sm text-slate-800">
-                                                        Sebelum Diskon
-                                                    </div>
-
-                                                    <div className="text-xs text-slate-500 mt-0.5">
-                                                        Fee dihitung dari harga coret
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-
-                                        </button>
-
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                setMarketplaceFeeBase(
-                                                    'after'
-                                                )
-                                            }
-                                            className={`text-left p-4 rounded-xl border-2 transition-all ${
-                                                marketplaceFeeBase === 'after'
-                                                    ? 'border-indigo-500 bg-indigo-50'
-                                                    : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-                                            }`}
-                                        >
-
-                                            <div className="flex items-center gap-3">
-
-                                                <div
-                                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                                        marketplaceFeeBase === 'after'
-                                                            ? 'border-indigo-600'
-                                                            : 'border-slate-300'
-                                                    }`}
-                                                >
-
-                                                    {marketplaceFeeBase === 'after' && (
-
-                                                        <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>
-
-                                                    )}
-
-                                                </div>
-
-                                                <div>
-
-                                                    <div className="font-bold text-sm text-slate-800">
-                                                        Setelah Diskon
-                                                    </div>
-
-                                                    <div className="text-xs text-slate-500 mt-0.5">
-                                                        Fee dihitung dari harga bayar
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-
-                                        </button>
+                                        <i className={`fas ${
+                                            discountOpen
+                                                ? 'fa-chevron-up'
+                                                : 'fa-chevron-down'
+                                        } text-slate-400`}></i>
 
                                     </div>
 
-                                </div>
+                                </button>
 
 
-                                {/* INFO */}
+                                {/* DISCOUNT PANEL */}
 
-                                <div className="p-3 rounded-lg bg-blue-50 border border-blue-100 text-blue-700 text-xs leading-relaxed">
+                                {discountOpen && (
 
-                                    <i className="fas fa-info-circle mr-1"></i>
+                                    <div className="mt-3 p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 animate-slide-down">
 
-                                    <b>Catatan:</b> Harga coret adalah harga sebelum diskon.
-                                    Harga setelah diskon adalah harga yang dibayar customer.
+                                        <div className="flex items-center justify-between gap-3">
 
-                                </div>
+                                            <div>
 
-                            </div>
+                                                <div className="font-semibold text-slate-800 text-sm">
+                                                    Gunakan Diskon
+                                                </div>
 
-                        ) : (
+                                                <div className="text-xs text-slate-500 mt-0.5">
+                                                    Harga jual akan ditampilkan setelah diskon.
+                                                </div>
 
-                            <div className="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-100 text-slate-500 text-xs">
+                                            </div>
 
-                                <i className="fas fa-toggle-off mr-1"></i>
 
-                                Diskon tidak digunakan.
-                                Harga jual langsung dianggap sebagai harga yang dibayar customer.
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+
+                                                    setDiscountEnabled(
+                                                        !discountEnabled
+                                                    );
+
+                                                    if (!discountEnabled) {
+                                                        setDiscountPercent(
+                                                            discountPercent || '10'
+                                                        );
+                                                    }
+
+                                                }}
+                                                className={`relative w-12 h-7 rounded-full transition-colors shrink-0 ${
+                                                    discountEnabled
+                                                        ? 'bg-indigo-600'
+                                                        : 'bg-slate-300'
+                                                }`}
+                                            >
+
+                                                <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                                    discountEnabled
+                                                        ? 'translate-x-6'
+                                                        : 'translate-x-1'
+                                                }`}></span>
+
+                                            </button>
+
+                                        </div>
+
+
+                                        {discountEnabled && (
+
+                                            <div className="mt-4">
+
+                                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+
+                                                    Besaran Diskon
+
+                                                </label>
+
+                                                <div className="relative">
+
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="99.99"
+                                                        step="0.1"
+                                                        value={discountPercent}
+                                                        onChange={e =>
+                                                            setDiscountPercent(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        placeholder="Contoh: 20"
+                                                        className="w-full pr-10 p-3 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                                                    />
+
+                                                    <span className="absolute right-3 top-3 text-slate-500 font-bold">
+                                                        %
+                                                    </span>
+
+                                                </div>
+
+
+                                                <div className="mt-3 p-3 rounded-lg bg-white border border-indigo-100 text-xs text-slate-600 leading-relaxed">
+
+                                                    <i className="fas fa-info-circle text-indigo-500 mr-1"></i>
+
+                                                    Contoh: diskon <b>20%</b>, harga jual Rp100.000 akan memiliki harga coret sekitar <b>Rp125.000</b>.
+
+                                                </div>
+
+                                            </div>
+
+                                        )}
+
+                                    </div>
+
+                                )}
 
                             </div>
 
@@ -1848,13 +1639,11 @@ function CalculatorApp() {
 
 
                     {/* =================================================
-                       FEES
+                        PERCENTAGE FEES
                     ================================================= */}
 
                     <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
 
-
-                        {/* PERCENTAGE */}
 
                         <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 gap-3">
 
@@ -1866,12 +1655,14 @@ function CalculatorApp() {
 
                             </h2>
 
+
                             <button
                                 onClick={addPctFee}
                                 className="shrink-0 text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
                             >
 
                                 <i className="fas fa-plus mr-1"></i>
+
                                 Tambah
 
                             </button>
@@ -1883,69 +1674,114 @@ function CalculatorApp() {
 
                             <div
                                 key={fee.id}
-                                className="flex items-center gap-2 sm:gap-3 mb-3 w-full"
+                                className="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-100"
                             >
 
-                                <input
-                                    type="text"
-                                    className="min-w-0 flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-base font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
-                                    placeholder="Nama Potongan"
-                                    value={fee.name}
-                                    onChange={e =>
-                                        handleUpdatePctFee(
-                                            fee.id,
-                                            'name',
-                                            e.target.value
-                                        )
-                                    }
-                                />
-
-
-                                <div className="relative w-20 sm:w-28 shrink-0">
+                                <div className="flex items-center gap-2 sm:gap-3 w-full">
 
                                     <input
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        value={fee.value}
+                                        type="text"
+                                        className="min-w-0 flex-1 p-2.5 bg-white border border-slate-200 rounded-lg text-base font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                                        placeholder="Nama Potongan"
+                                        value={fee.name}
                                         onChange={e =>
                                             handleUpdatePctFee(
                                                 fee.id,
-                                                'value',
+                                                'name',
                                                 e.target.value
                                             )
                                         }
-                                        className="w-full p-2.5 pr-7 bg-slate-50 border border-slate-200 rounded-lg text-base font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-right"
-                                        placeholder="0"
                                     />
 
-                                    <span className="absolute right-2.5 top-2.5 text-slate-500 text-sm font-bold">
-                                        %
-                                    </span>
+
+                                    <div className="relative w-20 sm:w-28 shrink-0">
+
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            className="w-full p-2.5 pr-7 bg-white border border-slate-200 rounded-lg text-base font-medium outline-none focus:ring-2 focus:ring-indigo-500 text-right"
+                                            placeholder="0"
+                                            value={fee.value}
+                                            onChange={e =>
+                                                handleUpdatePctFee(
+                                                    fee.id,
+                                                    'value',
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                        <span className="absolute right-2.5 top-2.5 text-slate-500 text-sm font-bold">
+                                            %
+                                        </span>
+
+                                    </div>
+
+
+                                    <button
+                                        onClick={() =>
+                                            removePctFee(fee.id)
+                                        }
+                                        className="shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                        title="Hapus"
+                                    >
+
+                                        <i className="fas fa-trash-alt"></i>
+
+                                    </button>
 
                                 </div>
 
 
-                                <button
-                                    onClick={() =>
-                                        removePctFee(
-                                            fee.id
-                                        )
-                                    }
-                                    className="shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                    title="Hapus"
-                                >
+                                {/* BASIS SELECTOR */}
 
-                                    <i className="fas fa-trash-alt"></i>
+                                <div className="mt-3">
 
-                                </button>
+                                    <label className="block text-xs font-semibold text-slate-500 mb-1.5">
+                                        Potongan dihitung dari
+                                    </label>
+
+                                    <select
+                                        value={fee.basis}
+                                        onChange={e =>
+                                            handleUpdatePctFee(
+                                                fee.id,
+                                                'basis',
+                                                e.target.value
+                                            )
+                                        }
+                                        className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                                    >
+
+                                        <option value="after">
+                                            Harga setelah diskon
+                                        </option>
+
+                                        <option value="before">
+                                            Harga sebelum diskon
+                                        </option>
+
+                                    </select>
+
+                                    <div className="mt-1.5 text-[11px] text-slate-400">
+
+                                        {fee.basis === 'after'
+                                            ? 'Potongan dihitung dari harga jual setelah diskon.'
+                                            : 'Potongan dihitung dari harga coret / harga sebelum diskon.'
+                                        }
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
                         ))}
 
 
-                        {/* NOMINAL */}
+                        {/* =================================================
+                            NOMINAL FEES
+                        ================================================= */}
 
                         <div className="flex justify-between items-center mt-8 mb-4 pb-3 border-b border-slate-100 gap-3">
 
@@ -1957,12 +1793,14 @@ function CalculatorApp() {
 
                             </h2>
 
+
                             <button
                                 onClick={addNomFee}
                                 className="shrink-0 text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
                             >
 
                                 <i className="fas fa-plus mr-1"></i>
+
                                 Tambah
 
                             </button>
@@ -2019,9 +1857,7 @@ function CalculatorApp() {
 
                                 <button
                                     onClick={() =>
-                                        removeNomFee(
-                                            fee.id
-                                        )
+                                        removeNomFee(fee.id)
                                     }
                                     className="shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                     title="Hapus"
@@ -2041,7 +1877,7 @@ function CalculatorApp() {
 
 
                 {/* =================================================
-                   RIGHT COLUMN
+                    RIGHT / SUMMARY
                 ================================================= */}
 
                 <div className="lg:col-span-1">
@@ -2049,22 +1885,20 @@ function CalculatorApp() {
                     <div className="sticky top-6">
 
 
-                        {/* SUMMARY CARD */}
-
-                        <div
-                            className={`p-6 rounded-2xl border-2 shadow-lg bg-white ${
-                                calcResult.isError
-                                    ? 'border-red-400 shadow-red-100'
-                                    : isProfit
+                        <div className={`p-6 rounded-2xl border-2 shadow-lg bg-white ${
+                            calcResult.isError
+                                ? 'border-red-400 shadow-red-100'
+                                : (
+                                    isProfit
                                         ? 'border-emerald-400 shadow-emerald-100'
-                                        : isLoss
-                                            ? 'border-red-400 shadow-red-100'
-                                            : 'border-slate-200'
-                            }`}
-                        >
+                                        : (
+                                            isLoss
+                                                ? 'border-red-400 shadow-red-100'
+                                                : 'border-slate-200'
+                                        )
+                                )
+                        }`}>
 
-
-                            {/* HEADER */}
 
                             <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
 
@@ -2079,21 +1913,23 @@ function CalculatorApp() {
 
                                 {!calcResult.isError && (
 
-                                    <span
-                                        className={`px-3 py-1 text-xs font-bold rounded-full ${
-                                            isProfit
-                                                ? 'bg-emerald-100 text-emerald-700'
-                                                : isLoss
+                                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                        isProfit
+                                            ? 'bg-emerald-100 text-emerald-700'
+                                            : (
+                                                isLoss
                                                     ? 'bg-red-100 text-red-700'
                                                     : 'bg-slate-100 text-slate-600'
-                                        }`}
-                                    >
+                                            )
+                                    }`}>
 
                                         {isProfit
                                             ? 'UNTUNG'
-                                            : isLoss
-                                                ? 'BUNTUNG'
-                                                : 'IMPAS'
+                                            : (
+                                                isLoss
+                                                    ? 'BUNTUNG'
+                                                    : 'IMPAS'
+                                            )
                                         }
 
                                     </span>
@@ -2103,8 +1939,6 @@ function CalculatorApp() {
                             </div>
 
 
-                            {/* ERROR */}
-
                             {calcResult.isError ? (
 
                                 <div className="p-4 bg-red-50 text-red-600 rounded-lg text-center font-semibold border border-red-100">
@@ -2112,7 +1946,9 @@ function CalculatorApp() {
                                     <i className="fas fa-exclamation-triangle text-2xl mb-2"></i>
 
                                     <p>
-                                        {calcResult.errorMessage}
+                                        {calcResult.errorMessage ||
+                                            'Total persentase potongan tidak valid.'
+                                        }
                                     </p>
 
                                 </div>
@@ -2122,76 +1958,63 @@ function CalculatorApp() {
                                 <div className="space-y-3 text-sm">
 
 
-                                    {/* PRIMARY PRICE */}
+                                    {/* =================================================
+                                        HARGA COREt
+                                        HANYA MODE IDEAL + DISKON
+                                    ================================================= */}
 
-                                    <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg">
+                                    {activeTab === 'ideal' &&
+                                        discountEnabled &&
+                                        calcResult.coret > 0 && (
 
-                                        <span className="text-slate-600 font-medium">
+                                        <div className="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
 
-                                            {discountEnabled
-                                                ? 'Harga Coret'
-                                                : 'Harga Jual'
-                                            }
+                                            <span className="text-slate-600 font-medium">
+                                                Harga Coret
+                                            </span>
 
-                                        </span>
+                                            <span className="font-semibold text-slate-400 text-base line-through">
+                                                {formatCurrency(
+                                                    calcResult.coret
+                                                )}
+                                            </span>
 
-                                        <span className="font-bold text-slate-900 text-base">
+                                        </div>
 
-                                            {formatCurrency(
-                                                calcResult.corePrice
+                                    )}
+
+
+                                    {/* =================================================
+                                        HARGA JUAL
+                                    ================================================= */}
+
+                                    <div className="flex justify-between items-center bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+
+                                        <div>
+
+                                            <span className="text-slate-600 font-medium block">
+                                                Harga Jual
+                                            </span>
+
+                                            {activeTab === 'ideal' &&
+                                                discountEnabled && (
+
+                                                <span className="text-[10px] text-indigo-500 font-semibold uppercase">
+                                                    Setelah Diskon
+                                                </span>
+
                                             )}
 
+                                        </div>
+
+
+                                        <span className="font-black text-indigo-700 text-lg">
+                                            {formatCurrency(
+                                                calcResult.sp
+                                            )}
                                         </span>
 
                                     </div>
-
-
-                                    {/* DISCOUNT */}
-
-                                    {discountEnabled && (
-
-                                        <>
-
-                                            <div className="flex justify-between px-2">
-
-                                                <span className="text-orange-500 font-medium">
-
-                                                    Diskon Produk ({calcResult.discountPercent.toFixed(2)}%)
-
-                                                </span>
-
-                                                <span className="font-medium text-orange-600">
-
-                                                    - {formatCurrency(
-                                                        calcResult.discountAmount
-                                                    )}
-
-                                                </span>
-
-                                            </div>
-
-
-                                            <div className="flex justify-between items-center bg-orange-50 border border-orange-100 p-2.5 rounded-lg">
-
-                                                <span className="text-orange-700 font-bold">
-
-                                                    Harga Setelah Diskon
-
-                                                </span>
-
-                                                <span className="font-black text-orange-700 text-base">
-
-                                                    {formatCurrency(
-                                                        calcResult.customerPrice
-                                                    )}
-
-                                                </span>
-
-                                            </div>
-
-                                        </>
-
-                                    )}
 
 
                                     {/* HPP */}
@@ -2203,123 +2026,93 @@ function CalculatorApp() {
                                         </span>
 
                                         <span className="font-medium text-slate-700">
-
                                             - {formatCurrency(
                                                 unformatRp(hpp)
                                             )}
-
                                         </span>
 
                                     </div>
 
 
-                                    {/* FEE BASE */}
-
-                                    <div className="mt-2 bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg">
-
-                                        <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-500 mb-1">
-
-                                            Dasar Perhitungan Fee
-
-                                        </div>
-
-                                        <div className="text-xs text-indigo-700 font-semibold">
-
-                                            {discountEnabled
-                                                ? (
-                                                    marketplaceFeeBase === 'before'
-                                                        ? 'Harga Sebelum Diskon / Harga Coret'
-                                                        : 'Harga Setelah Diskon / Harga Dibayar Customer'
-                                                )
-                                                : 'Harga Jual'
-                                            }
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* BREAKDOWN */}
+                                    {/* =================================================
+                                        BREAKDOWN
+                                    ================================================= */}
 
                                     <div className="mt-2 bg-slate-100/50 p-2.5 rounded-lg border border-slate-200">
 
                                         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-
-                                            Rincian Potongan Marketplace
-
+                                            Rincian Potongan
                                         </div>
 
 
                                         {calcResult.breakdownPct.map(
                                             (b, i) => (
 
-                                                <div
-                                                    key={'pct-' + i}
-                                                    className="flex justify-between text-xs py-0.5 gap-2"
-                                                >
+                                            <div
+                                                key={'pct-' + i}
+                                                className="flex justify-between text-xs py-0.5 gap-3"
+                                            >
 
-                                                    <span className="text-red-400 truncate">
+                                                <span className="text-red-400 min-w-0">
 
-                                                        ↳ {b.name} ({b.pct}%)
+                                                    ↳ {b.name} ({b.pct}%)
+
+                                                    <span className="block text-[9px] text-slate-400 ml-3">
+
+                                                        {b.basis === 'after'
+                                                            ? 'dari harga setelah diskon'
+                                                            : 'dari harga sebelum diskon'
+                                                        }
 
                                                     </span>
 
-                                                    <span className="text-red-500 shrink-0">
+                                                </span>
 
-                                                        - {formatCurrency(
-                                                            b.amount
-                                                        )}
 
-                                                    </span>
+                                                <span className="text-red-500 shrink-0">
+                                                    - {formatCurrency(
+                                                        b.amount
+                                                    )}
+                                                </span>
 
-                                                </div>
+                                            </div>
 
-                                            )
-                                        )}
+                                        ))}
 
 
                                         {calcResult.breakdownNom.map(
                                             (b, i) => (
 
-                                                <div
-                                                    key={'nom-' + i}
-                                                    className="flex justify-between text-xs py-0.5 gap-2"
-                                                >
+                                            <div
+                                                key={'nom-' + i}
+                                                className="flex justify-between text-xs py-0.5"
+                                            >
 
-                                                    <span className="text-red-400 truncate">
+                                                <span className="text-red-400">
+                                                    ↳ {b.name}
+                                                </span>
 
-                                                        ↳ {b.name}
+                                                <span className="text-red-500">
+                                                    - {formatCurrency(
+                                                        b.amount
+                                                    )}
+                                                </span>
 
-                                                    </span>
+                                            </div>
 
-                                                    <span className="text-red-500 shrink-0">
-
-                                                        - {formatCurrency(
-                                                            b.amount
-                                                        )}
-
-                                                    </span>
-
-                                                </div>
-
-                                            )
                                         )}
 
 
                                         <div className="flex justify-between pt-1.5 mt-1.5 border-t border-slate-200 border-dashed">
 
                                             <span className="text-slate-600 font-semibold text-xs">
-
                                                 Total Semua Potongan
-
                                             </span>
 
                                             <span className="font-bold text-red-500 text-sm">
-
                                                 - {formatCurrency(
                                                     calcResult.potongan
                                                 )}
-
                                             </span>
 
                                         </div>
@@ -2327,27 +2120,27 @@ function CalculatorApp() {
                                     </div>
 
 
-                                    {/* PROFIT */}
+                                    {/* =================================================
+                                        PROFIT
+                                    ================================================= */}
 
                                     <div className="pt-4 mt-2 border-t border-slate-100">
 
                                         <div className="flex justify-between items-end mb-1">
 
                                             <span className="font-bold text-slate-800 text-base">
-
                                                 Profit Bersih
-
                                             </span>
 
-                                            <div
-                                                className={`text-2xl font-black ${
-                                                    isProfit
-                                                        ? 'text-emerald-500'
-                                                        : isLoss
+                                            <div className={`text-2xl font-black ${
+                                                isProfit
+                                                    ? 'text-emerald-500'
+                                                    : (
+                                                        isLoss
                                                             ? 'text-red-500'
                                                             : 'text-slate-800'
-                                                }`}
-                                            >
+                                                    )
+                                            }`}>
 
                                                 {formatCurrency(
                                                     calcResult.profit
@@ -2361,20 +2154,14 @@ function CalculatorApp() {
                                         <div className="flex justify-between items-center text-xs">
 
                                             <span className="text-slate-400">
-
-                                                Margin dari Harga Dibayar:
-
+                                                Margin dari Harga Jual:
                                             </span>
 
-                                            <span
-                                                className={`font-semibold ${
-                                                    isProfit
-                                                        ? 'text-emerald-600'
-                                                        : isLoss
-                                                            ? 'text-red-500'
-                                                            : 'text-slate-500'
-                                                }`}
-                                            >
+                                            <span className={`font-semibold ${
+                                                isProfit
+                                                    ? 'text-emerald-600'
+                                                    : 'text-slate-500'
+                                            }`}>
 
                                                 {calcResult.margin.toFixed(2)}%
 
@@ -2388,8 +2175,6 @@ function CalculatorApp() {
 
                             )}
 
-
-                            {/* SAVE */}
 
                             <button
                                 onClick={handleSave}
@@ -2410,13 +2195,11 @@ function CalculatorApp() {
                         </div>
 
 
-                        {/* TIPS */}
-
                         <div className="mt-4 p-4 bg-blue-50 text-blue-800 text-xs rounded-xl border border-blue-100 shadow-sm leading-relaxed">
 
                             <i className="fas fa-info-circle mr-1"></i>
 
-                            <b>Tips:</b> Pastikan persentase potongan sesuai dengan kategori produk Anda di aplikasi seller centre seperti Shopee atau TikTok Shop.
+                            <b>Tips:</b> Pastikan % potongan sesuai dengan kategori produk Anda di aplikasi seller centre (Shopee/TikTok).
 
                         </div>
 
@@ -2428,10 +2211,11 @@ function CalculatorApp() {
 
 
             {/* =================================================
-               HISTORY
+                HISTORY
             ================================================= */}
 
             <div className="mt-10 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
 
                 <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
 
@@ -2442,6 +2226,7 @@ function CalculatorApp() {
                         Riwayat Kalkulasi
 
                     </h3>
+
 
                     <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">
 
@@ -2465,27 +2250,23 @@ function CalculatorApp() {
                                 </th>
 
                                 <th className="px-5 py-4 font-semibold">
-                                    HPP
+                                    Modal (HPP)
                                 </th>
 
                                 <th className="px-5 py-4 font-semibold">
-                                    Harga Coret / Jual
+                                    Harga Jual
                                 </th>
 
                                 <th className="px-5 py-4 font-semibold">
-                                    Diskon
-                                </th>
-
-                                <th className="px-5 py-4 font-semibold">
-                                    Harga Dibayar
+                                    Harga Coret
                                 </th>
 
                                 <th className="px-5 py-4 font-semibold text-red-500">
-                                    Potongan
+                                    Total Potongan
                                 </th>
 
                                 <th className="px-5 py-4 font-semibold text-emerald-600">
-                                    Profit
+                                    Profit Bersih
                                 </th>
 
                                 <th className="px-5 py-4 font-semibold text-center">
@@ -2508,7 +2289,7 @@ function CalculatorApp() {
                                 <tr>
 
                                     <td
-                                        colSpan="9"
+                                        colSpan="8"
                                         className="px-5 py-12 text-center text-slate-400"
                                     >
 
@@ -2522,245 +2303,161 @@ function CalculatorApp() {
 
                             ) : (
 
-                                history.map(item => {
+                                history.map(item => (
 
-                                    /*
-                                       Support history lama yang belum
-                                       memiliki field baru.
-                                    */
+                                    <tr
+                                        key={item.id}
+                                        className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors"
+                                    >
 
-                                    const itemCorePrice =
-                                        Number(
-                                            item.corePrice ??
-                                            item.sp ??
-                                            0
-                                        );
+                                        <td className="px-5 py-4 font-bold text-slate-800">
 
-                                    const itemCustomerPrice =
-                                        Number(
-                                            item.customerPrice ??
-                                            item.sp ??
-                                            0
-                                        );
+                                            {item.name}
 
-                                    const itemDiscountPercent =
-                                        Number(
-                                            item.discountPercent ??
-                                            0
-                                        );
+                                            <div className="text-[10px] font-normal text-slate-400 mt-0.5 uppercase tracking-wider">
 
-                                    const itemDiscountAmount =
-                                        Number(
-                                            item.discountAmount ??
-                                            0
-                                        );
+                                                Mode:
+                                                {' '}
+                                                {item.mode === 'ideal'
+                                                    ? 'Hitung Ideal'
+                                                    : 'Cek Real'
+                                                }
 
-                                    const itemProfit =
-                                        Number(
-                                            item.profit ??
-                                            0
-                                        );
+                                            </div>
 
-                                    const itemMargin =
-                                        Number(
-                                            item.margin ??
-                                            0
-                                        );
+                                        </td>
 
 
-                                    return (
+                                        <td className="px-5 py-4 text-slate-600">
 
-                                        <tr
-                                            key={item.id}
-                                            className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors"
-                                        >
+                                            {formatCurrency(
+                                                item.hpp
+                                            )}
+
+                                        </td>
 
 
-                                            {/* NAME */}
+                                        <td className="px-5 py-4 font-semibold text-slate-800">
 
-                                            <td className="px-5 py-4 font-bold text-slate-800">
+                                            {formatCurrency(
+                                                item.sp
+                                            )}
 
-                                                {item.name}
+                                            {item.discountEnabled &&
+                                                item.discountPercent > 0 && (
 
-                                                <div className="text-[10px] font-normal text-slate-400 mt-0.5 uppercase tracking-wider">
+                                                <div className="text-[10px] text-indigo-500 font-semibold mt-0.5">
 
-                                                    Mode:
-                                                    {' '}
-                                                    {item.mode === 'ideal'
-                                                        ? 'Hitung Ideal'
-                                                        : 'Cek Real'
-                                                    }
+                                                    Diskon {item.discountPercent}%
 
                                                 </div>
 
-                                            </td>
+                                            )}
+
+                                        </td>
 
 
-                                            {/* HPP */}
+                                        <td className="px-5 py-4">
 
-                                            <td className="px-5 py-4 text-slate-600">
+                                            {item.discountEnabled &&
+                                                item.coret > 0 ? (
 
-                                                {formatCurrency(
-                                                    item.hpp
-                                                )}
-
-                                            </td>
-
-
-                                            {/* CORE */}
-
-                                            <td className="px-5 py-4 font-semibold text-slate-800">
-
-                                                {formatCurrency(
-                                                    itemCorePrice
-                                                )}
-
-                                            </td>
-
-
-                                            {/* DISCOUNT */}
-
-                                            <td className="px-5 py-4">
-
-                                                {item.discountEnabled ? (
-
-                                                    <div>
-
-                                                        <div className="font-bold text-orange-600">
-
-                                                            {itemDiscountPercent.toFixed(1)}%
-
-                                                        </div>
-
-                                                        <div className="text-[11px] text-slate-400">
-
-                                                            - {formatCurrency(
-                                                                itemDiscountAmount
-                                                            )}
-
-                                                        </div>
-
-                                                    </div>
-
-                                                ) : (
-
-                                                    <span className="text-slate-400">
-                                                        -
-                                                    </span>
-
-                                                )}
-
-                                            </td>
-
-
-                                            {/* CUSTOMER PRICE */}
-
-                                            <td className="px-5 py-4 font-semibold text-slate-800">
-
-                                                {formatCurrency(
-                                                    itemCustomerPrice
-                                                )}
-
-                                            </td>
-
-
-                                            {/* POTONGAN */}
-
-                                            <td className="px-5 py-4 font-semibold text-red-500">
-
-                                                - {formatCurrency(
-                                                    item.potongan || 0
-                                                )}
-
-                                            </td>
-
-
-                                            {/* PROFIT */}
-
-                                            <td className="px-5 py-4">
-
-                                                <div
-                                                    className={`font-black ${
-                                                        itemProfit > 0
-                                                            ? 'text-emerald-500'
-                                                            : itemProfit < 0
-                                                                ? 'text-red-500'
-                                                                : 'text-slate-500'
-                                                    }`}
-                                                >
+                                                <span className="text-slate-400 line-through">
 
                                                     {formatCurrency(
-                                                        itemProfit
+                                                        item.coret
                                                     )}
-
-                                                </div>
-
-                                                <div className="text-[11px] font-medium text-slate-400 mt-0.5">
-
-                                                    Margin:
-                                                    {' '}
-                                                    {itemMargin.toFixed(1)}%
-
-                                                </div>
-
-                                            </td>
-
-
-                                            {/* STATUS */}
-
-                                            <td className="px-5 py-4 text-center">
-
-                                                <span
-                                                    className={`px-3 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wide ${
-                                                        itemProfit > 0
-                                                            ? 'bg-emerald-100 text-emerald-700'
-                                                            : itemProfit < 0
-                                                                ? 'bg-red-100 text-red-700'
-                                                                : 'bg-slate-100 text-slate-600'
-                                                    }`}
-                                                >
-
-                                                    {itemProfit > 0
-                                                        ? 'UNTUNG'
-                                                        : itemProfit < 0
-                                                            ? 'BUNTUNG'
-                                                            : 'IMPAS'
-                                                    }
 
                                                 </span>
 
-                                            </td>
+                                            ) : (
+
+                                                <span className="text-slate-300">
+                                                    —
+                                                </span>
+
+                                            )}
+
+                                        </td>
 
 
-                                            {/* DELETE */}
+                                        <td className="px-5 py-4 font-semibold text-red-500">
 
-                                            <td className="px-5 py-4 text-center">
+                                            - {formatCurrency(
+                                                item.potongan
+                                            )}
 
-                                                <button
-                                                    onClick={() =>
-                                                        setHistory(prev =>
-                                                            prev.filter(
-                                                                h =>
-                                                                    h.id !==
-                                                                    item.id
-                                                            )
+                                        </td>
+
+
+                                        <td className="px-5 py-4">
+
+                                            <div className={`font-black ${
+                                                item.profit > 0
+                                                    ? 'text-emerald-500'
+                                                    : 'text-red-500'
+                                            }`}>
+
+                                                {formatCurrency(
+                                                    item.profit
+                                                )}
+
+                                            </div>
+
+                                            <div className="text-[11px] font-medium text-slate-400 mt-0.5">
+
+                                                Margin:
+                                                {' '}
+                                                {item.margin.toFixed(1)}%
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <td className="px-5 py-4 text-center">
+
+                                            <span className={`px-3 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wide ${
+                                                item.profit > 0
+                                                    ? 'bg-emerald-100 text-emerald-700'
+                                                    : 'bg-red-100 text-red-700'
+                                            }`}>
+
+                                                {item.profit > 0
+                                                    ? 'UNTUNG'
+                                                    : 'BUNTUNG'
+                                                }
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <td className="px-5 py-4 text-center">
+
+                                            <button
+                                                onClick={() =>
+                                                    setHistory(
+                                                        history.filter(
+                                                            h =>
+                                                                h.id !==
+                                                                item.id
                                                         )
-                                                    }
-                                                    className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center mx-auto"
-                                                    title="Hapus"
-                                                >
+                                                    )
+                                                }
+                                                className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center mx-auto"
+                                                title="Hapus"
+                                            >
 
-                                                    <i className="fas fa-trash-alt text-xs"></i>
+                                                <i className="fas fa-trash-alt text-xs"></i>
 
-                                                </button>
+                                            </button>
 
-                                            </td>
+                                        </td>
 
-                                        </tr>
+                                    </tr>
 
-                                    );
-
-                                })
+                                ))
 
                             )}
 
@@ -2787,7 +2484,6 @@ const root =
     ReactDOM.createRoot(
         document.getElementById('root')
     );
-
 
 root.render(
     <AuthGate>
