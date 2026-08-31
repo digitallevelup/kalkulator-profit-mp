@@ -945,18 +945,22 @@ function CalculatorApp() {
         ) {
 
             /*
-                Cek Real Profit
-                TIDAK menggunakan diskon.
-
-                Harga jual yang dimasukkan
-                adalah harga transaksi aktual.
+                Cek Real Profit.
+                Jika diskon aktif, harga jual yang dimasukkan
+                dianggap sebagai harga coret dan transaksi aktual
+                dihitung dari harga setelah diskon.
             */
 
             finalPriceBeforeDiscount =
                 numSellingPrice;
 
             finalSellingPrice =
-                numSellingPrice;
+                discountEnabled
+                    ? finalPriceBeforeDiscount * (1 - discount)
+                    : finalPriceBeforeDiscount;
+
+            const discountAmount =
+                finalPriceBeforeDiscount * discount;
 
 
             percentageFees.forEach((fee) => {
@@ -976,7 +980,9 @@ function CalculatorApp() {
                         pct: pct,
 
                         amount:
-                            finalSellingPrice *
+                            (discountEnabled && discountBase === 'before'
+                                ? finalPriceBeforeDiscount
+                                : finalSellingPrice) *
                             (pct / 100)
                     });
 
@@ -1016,6 +1022,7 @@ function CalculatorApp() {
 
 
             totalPotongan =
+                discountAmount +
                 totalPercentageAmount +
                 totalNom;
 
@@ -1023,7 +1030,8 @@ function CalculatorApp() {
             finalProfit =
                 finalSellingPrice -
                 numHpp -
-                totalPotongan;
+                totalPercentageAmount -
+                totalNom;
 
         }
 
@@ -1286,7 +1294,7 @@ function CalculatorApp() {
                 calcResult.discount,
 
             discountBase:
-                activeTab === 'ideal'
+                discountEnabled
                     ? discountBase
                     : null,
 
@@ -1518,7 +1526,7 @@ function CalculatorApp() {
                             ) : (
 
                                 <CurrencyInput
-                                    label="Harga Jual Saat Ini"
+                                    label={discountEnabled ? 'Harga Coret' : 'Harga Jual Saat Ini'}
                                     placeholder="0"
                                     value={sellingPrice}
                                     onChange={setSellingPrice}
@@ -1531,9 +1539,9 @@ function CalculatorApp() {
                     </div>
 
 
-                    {/* DISCOUNT - HANYA IDEAL */}
+                    {/* DISCOUNT */}
 
-                    {activeTab === 'ideal' && (
+                    {(activeTab === 'ideal' || activeTab === 'real') && (
 
                         <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
 
@@ -1965,7 +1973,7 @@ function CalculatorApp() {
 
                                     {/* IDEAL DISCOUNT */}
 
-                                    {activeTab === 'ideal' &&
+                                    {(activeTab === 'ideal' || activeTab === 'real') &&
                                     discountEnabled &&
                                     calcResult.discount > 0 && (
 
@@ -2020,9 +2028,9 @@ function CalculatorApp() {
                                     )}
 
 
-                                    {/* REAL PRICE */}
+                                    {/* HARGA JUAL TANPA DISKON */}
 
-                                    {activeTab === 'real' && (
+                                    {(!discountEnabled || calcResult.discount <= 0) && (
 
                                         <div className="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
 
@@ -2030,7 +2038,7 @@ function CalculatorApp() {
                                                 Harga Jual
                                             </span>
 
-                                            <span className="font-bold text-slate-900 text-base">
+                                            <span className="font-black text-slate-900 text-lg">
                                                 {formatCurrency(
                                                     calcResult.sellingPrice
                                                 )}
@@ -2346,8 +2354,7 @@ function CalculatorApp() {
                                                     : 'Cek Real'
                                                 }
 
-                                                {item.mode === 'ideal' &&
-                                                item.discount > 0 && (
+                                                {item.discount > 0 && (
                                                     <>
                                                         {' • '}
                                                         Diskon {Number(item.discount).toFixed(1)}%
