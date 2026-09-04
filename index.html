@@ -534,10 +534,6 @@ function CalculatorApp() {
     const [targetProfit, setTargetProfit] =
         useState('');
 
-    // Target profit bisa dalam Rupiah atau Margin (%)
-    const [targetProfitType, setTargetProfitType] =
-        useState('rupiah');
-
     const [sellingPrice, setSellingPrice] =
         useState('');
 
@@ -658,10 +654,8 @@ function CalculatorApp() {
         const numHpp =
             unformatRp(hpp) || 0;
 
-        const numTargetInput =
-            targetProfitType === 'percent'
-                ? (parseFloat(targetProfit) || 0)
-                : (unformatRp(targetProfit) || 0);
+        const numTarget =
+            unformatRp(targetProfit) || 0;
 
         const numSellingPrice =
             unformatRp(sellingPrice) || 0;
@@ -740,20 +734,6 @@ function CalculatorApp() {
 
         }
 
-        if (
-            !isError &&
-            activeTab === 'ideal' &&
-            targetProfitType === 'percent' &&
-            (numTargetInput < 0 || numTargetInput >= 100)
-        ) {
-
-            isError = true;
-
-            errorMessage =
-                'Target profit persentase harus di antara 0% sampai kurang dari 100%.';
-
-        }
-
 
         /* ============================================
            MODE IDEAL
@@ -786,14 +766,9 @@ function CalculatorApp() {
 
             if (discountBase === 'before') {
 
-                const targetMargin =
-                    targetProfitType === 'percent'
-                        ? Math.max(0, Math.min(99.99, numTargetInput)) / 100
-                        : 0;
-
                 const denominator =
-                    (1 - discount) *
-                    (1 - targetMargin) -
+                    1 -
+                    discount -
                     totalPct;
 
 
@@ -802,16 +777,14 @@ function CalculatorApp() {
                     isError = true;
 
                     errorMessage =
-                        targetProfitType === 'percent'
-                            ? 'Target profit terlalu tinggi untuk kombinasi diskon dan biaya marketplace saat ini. Kurangi target profit, diskon, atau potongan marketplace.'
-                            : 'Diskon dan total potongan persentase terlalu besar. Kurangi diskon atau biaya marketplace.';
+                        'Diskon + total potongan persentase terlalu besar.';
 
                 } else {
 
                     finalPriceBeforeDiscount =
                         (
                             numHpp +
-                            (targetProfitType === 'rupiah' ? numTargetInput : 0) +
+                            numTarget +
                             totalNom
                         ) /
                         denominator;
@@ -837,14 +810,9 @@ function CalculatorApp() {
                 */
 
 
-                const targetMargin =
-                    targetProfitType === 'percent'
-                        ? Math.max(0, Math.min(99.99, numTargetInput)) / 100
-                        : 0;
-
                 const denominator =
                     (1 - discount) *
-                    (1 - totalPct - targetMargin);
+                    (1 - totalPct);
 
 
                 if (denominator <= 0) {
@@ -852,16 +820,14 @@ function CalculatorApp() {
                     isError = true;
 
                     errorMessage =
-                        targetProfitType === 'percent'
-                            ? 'Target profit terlalu tinggi untuk kombinasi biaya marketplace dan diskon saat ini. Target margin + potongan marketplace harus masih memungkinkan setelah semua biaya dihitung.'
-                            : 'Diskon atau total potongan persentase terlalu besar. Kurangi diskon atau biaya marketplace.';
+                        'Diskon atau total potongan persentase terlalu besar.';
 
                 } else {
 
                     finalPriceBeforeDiscount =
                         (
                             numHpp +
-                            (targetProfitType === 'rupiah' ? numTargetInput : 0) +
+                            numTarget +
                             totalNom
                         ) /
                         denominator;
@@ -1124,7 +1090,6 @@ function CalculatorApp() {
         activeTab,
         hpp,
         targetProfit,
-        targetProfitType,
         sellingPrice,
         percentageFees,
         nominalFees,
@@ -1318,14 +1283,6 @@ function CalculatorApp() {
 
             hpp:
                 unformatRp(hpp),
-
-            targetProfitType:
-                targetProfitType,
-
-            targetProfit:
-                targetProfitType === 'percent'
-                    ? (parseFloat(targetProfit) || 0)
-                    : unformatRp(targetProfit),
 
             sp:
                 calcResult.sp,
@@ -1642,76 +1599,12 @@ function CalculatorApp() {
 
                             {activeTab === 'ideal' ? (
 
-                                <div className="mb-1">
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                        Target Keuntungan Bersih
-                                    </label>
-
-                                    <div className="flex gap-2">
-                                        <div className="grid grid-cols-2 shrink-0 bg-slate-100 p-1 rounded-lg">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setTargetProfitType('rupiah');
-                                                    setTargetProfit('');
-                                                }}
-                                                className={`px-3 py-2 rounded-md text-sm font-bold transition-all ${
-                                                    targetProfitType === 'rupiah'
-                                                        ? 'bg-white text-indigo-700 shadow-sm'
-                                                        : 'text-slate-500'
-                                                }`}
-                                            >
-                                                Rp
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setTargetProfitType('percent');
-                                                    setTargetProfit('');
-                                                }}
-                                                className={`px-3 py-2 rounded-md text-sm font-bold transition-all ${
-                                                    targetProfitType === 'percent'
-                                                        ? 'bg-white text-indigo-700 shadow-sm'
-                                                        : 'text-slate-500'
-                                                }`}
-                                            >
-                                                %
-                                            </button>
-                                        </div>
-
-                                        {targetProfitType === 'rupiah' ? (
-                                            <div className="flex-1">
-                                                <CurrencyInput
-                                                    label=""
-                                                    placeholder="0"
-                                                    value={targetProfit}
-                                                    onChange={setTargetProfit}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className="relative flex-1">
-                                                <input
-                                                    type="number"
-                                                    inputMode="decimal"
-                                                    min="0"
-                                                    max="99.99"
-                                                    step="0.1"
-                                                    value={targetProfit}
-                                                    onChange={(e) => setTargetProfit(e.target.value)}
-                                                    placeholder="Contoh: 20"
-                                                    className="w-full p-2.5 pr-9 bg-slate-50 border border-slate-200 rounded-lg text-base font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white"
-                                                />
-                                                <span className="absolute right-3 top-2.5 text-slate-500 font-bold">%</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {targetProfitType === 'percent' && (
-                                        <p className="text-xs text-slate-400 mt-1.5">
-                                            Target % dihitung sebagai margin profit bersih dari harga jual.
-                                        </p>
-                                    )}
-                                </div>
+                                <CurrencyInput
+                                    label="Target Keuntungan Bersih"
+                                    placeholder="0"
+                                    value={targetProfit}
+                                    onChange={setTargetProfit}
+                                />
 
                             ) : (
 
